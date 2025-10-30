@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: medisecure-backend
+          image: medisecure-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:postgres@db:5432/medisecure"
+          envFrom:
+            - configMapRef:
+                name: medisecure-config
+            - secretRef:
+                name: medisecure-secrets
+          volumeMounts:
+            - name: medisecure-storage
+              mountPath: /app/data
+      volumes:
+        - name: medisecure-storage
+          persistentVolumeClaim:
+            claimName: medisecure-pvc

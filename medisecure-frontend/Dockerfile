@@ -1,19 +1,16 @@
-# Dockerfile pour le frontend
-FROM node:18-alpine
-
-# Update Alpine packages to reduce vulnerabilities
-RUN apk update && apk upgrade --no-cache
+# Étape de build correcte pour le mode dev Vite
+FROM node:18
 
 WORKDIR /app
 
-# Copier package.json
-COPY package.json ./
+# Copier tout le code du projet
+COPY . .
 
-# Installer les dépendances (utiliser npm install car pas de package-lock.json)
+# Installer les dépendances
 RUN npm install
 
-# Exposer le port
+# Exposer le port utilisé par Vite
 EXPOSE 3000
 
-# Commande de démarrage
-CMD ["npm", "run", "dev"]
+# Lancer le serveur
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

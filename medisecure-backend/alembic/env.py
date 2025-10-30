@@ -21,7 +21,10 @@ load_dotenv()
 config = context.config
 
 # Interprétation de la section sqlalchemy.url depuis l'environnement
-config.set_main_option('sqlalchemy.url', os.getenv("DATABASE_URL"))
+db_url = os.getenv("DATABASE_URL")
+if db_url and "+asyncpg" in db_url:
+    db_url = db_url.replace("+asyncpg", "")
+config.set_main_option('sqlalchemy.url', db_url)
 
 # Interpret the config file for Python logging.
 fileConfig(config.config_file_name)
