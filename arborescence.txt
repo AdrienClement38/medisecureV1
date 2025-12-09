@@ -1,0 +1,338 @@
+.
+`--- .git
+|   `--- config
+|   `--- description
+|   `--- HEAD
+|   `--- hooks
+|   |   `--- applypatch-msg.sample
+|   |   `--- commit-msg.sample
+|   |   `--- fsmonitor-watchman.sample
+|   |   `--- post-update.sample
+|   |   `--- pre-applypatch.sample
+|   |   `--- pre-commit.sample
+|   |   `--- pre-merge-commit.sample
+|   |   `--- pre-push.sample
+|   |   `--- pre-rebase.sample
+|   |   `--- pre-receive.sample
+|   |   `--- prepare-commit-msg.sample
+|   |   `--- push-to-checkout.sample
+|   |   `--- update.sample
+|   `--- index
+|   `--- info
+|   |   `--- exclude
+|   `--- logs
+|   |   `--- HEAD
+|   |   `--- refs
+|   |   |   `--- heads
+|   |   |   |   `--- main
+|   |   |   `--- remotes
+|   |   |   |   `--- origin
+|   |   |   |   |   `--- HEAD
+|   `--- objects
+|   |   `--- info
+|   |   `--- pack
+|   |   |   `--- pack-4d026bc176b788d5a77cee0700b7e78f7665fdea.idx
+|   |   |   `--- pack-4d026bc176b788d5a77cee0700b7e78f7665fdea.pack
+|   `--- packed-refs
+|   `--- refs
+|   |   `--- heads
+|   |   |   `--- main
+|   |   `--- remotes
+|   |   |   `--- origin
+|   |   |   |   `--- HEAD
+|   |   `--- tags
+`--- .github
+|   `--- workflows
+|   |   `--- deploy.yml
+`--- .gitignore
+`--- .idea
+|   `--- .gitignore
+|   `--- copilot.data.migration.ask2agent.xml
+|   `--- inspectionProfiles
+|   |   `--- Project_Default.xml
+|   `--- medisecureV1.iml
+|   `--- modules.xml
+|   `--- php.xml
+|   `--- vcs.xml
+|   `--- workspace.xml
+`--- arborescence.txt
+`--- compose.yml
+`--- docs
+|   `--- architecture_backend.md
+|   `--- architecture_frontend.md
+|   `--- presentation_projet.html
+|   `--- structure_projet_medisecure.md
+`--- k8s
+|   `--- backend-deployment.yaml
+|   `--- backend-service.yaml
+|   `--- configmap.yaml
+|   `--- db-deployment.yaml
+|   `--- db-service.yaml
+|   `--- frontend-deployment.yaml
+|   `--- frontend-service.yaml
+|   `--- pv.yaml
+|   `--- pvc.yaml
+|   `--- secret.yaml
+`--- medisecure-backend
+|   `--- .gitignore
+|   `--- alembic
+|   |   `--- env.py
+|   `--- alembic.ini
+|   `--- api
+|   |   `--- controllers
+|   |   |   `--- auth_controller.py
+|   |   |   `--- __init__.py
+|   |   `--- handlers
+|   |   |   `--- exception_handlers.py
+|   |   `--- main.py
+|   |   `--- middlewares
+|   |   |   `--- authentication_middleware.py
+|   |   `--- __init__.py
+|   `--- appointment_management
+|   |   `--- application
+|   |   |   `--- dtos
+|   |   |   |   `--- appointment_dtos.py
+|   |   |   `--- usecases
+|   |   |   |   `--- get_patient_appointments_usecase.py
+|   |   |   |   `--- schedule_appointment_usecase.py
+|   |   |   |   `--- update_appointment_usecase.py
+|   |   `--- domain
+|   |   |   `--- entities
+|   |   |   |   `--- appointment.py
+|   |   |   `--- ports
+|   |   |   |   `--- secondary
+|   |   |   |   |   `--- appointment_repository_protocol.py
+|   |   |   `--- services
+|   |   |   |   `--- appointment_service.py
+|   |   `--- infrastructure
+|   |   |   `--- adapters
+|   |   |   |   `--- primary
+|   |   |   |   |   `--- controllers
+|   |   |   |   |   |   `--- appointment_controller.py
+|   |   |   |   `--- secondary
+|   |   |   |   |   `--- in_memory_appointment_repository.py
+|   |   |   |   |   `--- postgres_appointment_repository.py
+|   `--- create_admin.py
+|   `--- Dockerfile
+|   `--- fix_uuid_imports.sh
+|   `--- generate_password_hash.py
+|   `--- init.sql
+|   `--- medisecure
+|   |   `--- bin
+|   |   |   `--- activate
+|   |   |   `--- activate.csh
+|   |   |   `--- activate.fish
+|   |   |   `--- Activate.ps1
+|   |   |   `--- alembic
+|   |   |   `--- coverage
+|   |   |   `--- coverage-3.9
+|   |   |   `--- coverage3
+|   |   |   `--- dotenv
+|   |   |   `--- email_validator
+|   |   |   `--- mako-render
+|   |   |   `--- pip
+|   |   |   `--- pip3
+|   |   |   `--- pip3.9
+|   |   |   `--- py.test
+|   |   |   `--- pyrsa-decrypt
+|   |   |   `--- pyrsa-encrypt
+|   |   |   `--- pyrsa-keygen
+|   |   |   `--- pyrsa-priv2pub
+|   |   |   `--- pyrsa-sign
+|   |   |   `--- pyrsa-verify
+|   |   |   `--- pytest
+|   |   |   `--- python
+|   |   |   `--- python3
+|   |   |   `--- python3.9
+|   |   |   `--- uvicorn
+|   |   `--- pyvenv.cfg
+|   `--- patient_management
+|   |   `--- application
+|   |   |   `--- dtos
+|   |   |   |   `--- patient_dtos.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- usecases
+|   |   |   |   `--- create_patient_folder_usercase.py
+|   |   |   |   `--- get_patient_usecase.py
+|   |   |   |   `--- update_patient_usecase.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- __init__.py
+|   |   `--- domain
+|   |   |   `--- entities
+|   |   |   |   `--- patient.py
+|   |   |   `--- exceptions
+|   |   |   |   `--- patient_exceptions.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- ports
+|   |   |   |   `--- secondary
+|   |   |   |   |   `--- patient_repository_protocol.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- services
+|   |   |   |   `--- patient_service.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- __init__.py
+|   |   `--- infrastructure
+|   |   |   `--- adapters
+|   |   |   |   `--- primary
+|   |   |   |   |   `--- controllers
+|   |   |   |   |   |   `--- patient_controller.py
+|   |   |   |   |   |   `--- __init__.py
+|   |   |   |   `--- secondary
+|   |   |   |   |   `--- in_memory_patient_repository.py
+|   |   |   |   |   `--- postgres_patient_repository.py
+|   |   |   |   |   `--- __init__.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- __init__.py
+|   |   `--- __init__.py
+|   `--- pyproject.toml
+|   `--- requirements.txt
+|   `--- shared
+|   |   `--- adapters
+|   |   |   `--- primary
+|   |   |   |   `--- fixed_id_generator.py
+|   |   |   |   `--- uuid_generator.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- secondary
+|   |   |   |   `--- in_memory_user_repository.py
+|   |   |   |   `--- postgres_user_repository.py
+|   |   |   |   `--- __init__.py
+|   |   `--- application
+|   |   |   `--- dtos
+|   |   |   |   `--- common_dtos.py
+|   |   |   |   `--- __init__.py
+|   |   `--- container
+|   |   |   `--- container.py
+|   |   |   `--- __init__.py
+|   |   `--- domain
+|   |   |   `--- entities
+|   |   |   |   `--- user.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- enums
+|   |   |   |   `--- roles.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- exceptions
+|   |   |   |   `--- shared_exceptions.py
+|   |   |   |   `--- __init__.py
+|   |   `--- infrastructure
+|   |   |   `--- database
+|   |   |   |   `--- connection.py
+|   |   |   |   `--- models
+|   |   |   |   |   `--- appointment_model.py
+|   |   |   |   |   `--- patient_model.py
+|   |   |   |   |   `--- user_model.py
+|   |   |   |   |   `--- __init__.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- services
+|   |   |   |   `--- smtp_mailer.py
+|   |   `--- ports
+|   |   |   `--- primary
+|   |   |   |   `--- authenticator_protocol.py
+|   |   |   |   `--- id_generator_protocol.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- secondary
+|   |   |   |   `--- mailer_protocol.py
+|   |   |   |   `--- user_repository_protocol.py
+|   |   |   |   `--- __init__.py
+|   |   `--- services
+|   |   |   `--- authenticator
+|   |   |   |   `--- basic_authenticator.py
+|   |   |   |   `--- extract_token.py
+|   |   |   |   `--- __init__.py
+|   `--- start.sh
+|   `--- tests
+|   |   `--- conftest.py
+|   |   `--- unit
+|   |   |   `--- patient_management
+|   |   |   |   `--- test_patient_service.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- shared
+|   |   |   |   `--- test_basic_authenticator.py
+|   |   |   |   `--- __init__.py
+|   |   |   `--- __init__.py
+|   |   `--- __init__.py
+`--- medisecure-frontend
+|   `--- .gitignore
+|   `--- Dockerfile
+|   `--- eslint.config.js
+|   `--- index.html
+|   `--- package.json
+|   `--- postcss.config.cjs
+|   `--- postcss.config.js
+|   `--- public
+|   |   `--- vite.svg
+|   `--- README.md
+|   `--- src
+|   |   `--- api
+|   |   |   `--- apiClient.ts
+|   |   |   `--- endpoints.ts
+|   |   |   `--- services
+|   |   |   |   `--- appointmentService.ts
+|   |   |   |   `--- authService.ts
+|   |   |   |   `--- patientService.ts
+|   |   `--- App.css
+|   |   `--- App.tsx
+|   |   `--- assets
+|   |   |   `--- react.svg
+|   |   `--- components
+|   |   |   `--- appointments
+|   |   |   |   `--- AppointmentCard.tsx
+|   |   |   `--- common
+|   |   |   |   `--- Alert
+|   |   |   |   |   `--- Alert.tsx
+|   |   |   |   `--- Button
+|   |   |   |   |   `--- Button.test.tsx
+|   |   |   |   |   `--- Button.tsx
+|   |   |   |   `--- DataTable
+|   |   |   |   |   `--- DataTable.tsx
+|   |   |   |   `--- InputField
+|   |   |   |   |   `--- InputField.tsx
+|   |   |   |   `--- LoadingScreen
+|   |   |   |   |   `--- LoadingScreen.tsx
+|   |   |   |   `--- Pagination
+|   |   |   |   |   `--- Pagination.tsx
+|   |   |   |   `--- SelectField
+|   |   |   |   |   `--- SelectField.tsx
+|   |   |   `--- layout
+|   |   |   |   `--- Header
+|   |   |   |   |   `--- Header.tsx
+|   |   |   |   `--- MainLayout
+|   |   |   |   |   `--- MainLayout.tsx
+|   |   |   |   `--- SideBar
+|   |   |   |   |   `--- SideBar.tsx
+|   |   `--- context
+|   |   |   `--- AuthContext.tsx
+|   |   `--- index.css
+|   |   `--- main.tsx
+|   |   `--- pages
+|   |   |   `--- appointments
+|   |   |   |   `--- AppointmentDetailsPage.tsx
+|   |   |   |   `--- AppointmentsCalendarPage.tsx
+|   |   |   |   `--- CreateAppointmentPage.tsx
+|   |   |   `--- auth
+|   |   |   |   `--- ForgotPasswordPage.tsx
+|   |   |   |   `--- LoginPage.tsx
+|   |   |   `--- dashboard
+|   |   |   |   `--- DashBoardPage.tsx
+|   |   |   `--- medical-records
+|   |   |   |   `--- MedicalRecordsPage.tsx
+|   |   |   |   `--- UploadDocumentPage.tsx
+|   |   |   `--- NotFoundPage.tsx
+|   |   |   `--- patients
+|   |   |   |   `--- CreatePatientPage.tsx
+|   |   |   |   `--- EditPatientPage.tsx
+|   |   |   |   `--- PatientDetailsPage.tsx
+|   |   |   |   `--- PatientsListPage.tsx
+|   |   |   `--- settings
+|   |   |   |   `--- SettingsPage.tsx
+|   |   `--- routes.tsx
+|   |   `--- types
+|   |   |   `--- patient.types.ts
+|   |   `--- vite-env.d.ts
+|   `--- tailwind.config.js
+|   `--- tsconfig.app.json
+|   `--- tsconfig.json
+|   `--- tsconfig.node.json
+|   `--- vite.config.ts
+`--- package-lock.json
+`--- package.json
+`--- start.sh

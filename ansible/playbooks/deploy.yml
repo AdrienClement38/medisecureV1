@@ -1,0 +1,22 @@
+- hosts: backend
+  become: yes
+  tasks:
+    - name: Pull backend image
+      community.docker.docker_image:
+        name: "registry.local/medisecure/backend:latest"
+        source: pull
+
+    - name: Apply database migrations
+      command: docker compose run backend alembic upgrade head
+      args:
+        chdir: "{{ paths.project_root }}"
+
+    - name: Restart application stack
+      command: docker compose up -d
+      args:
+        chdir: "{{ paths.project_root }}"
+
+    - name: Check health endpoint
+      uri:
+        url: "http://localhost:8000/health"
+        status_code: 200

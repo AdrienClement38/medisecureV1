@@ -1,0 +1,9 @@
+app_name: "medisecure"
+app_env: "production"
+
+docker_registry: "registry.local"
+
+paths:
+  project_root: "/opt/medisecure"
+  backend: "/opt/medisecure/backend"
+  frontend: "/opt/medisecure/frontend"

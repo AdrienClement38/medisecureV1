@@ -1,0 +1,11 @@
+{
+  "title": "MediSecure - Performance",
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 1,
+  "panels": [],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  }
+}

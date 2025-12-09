@@ -1,0 +1,33 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MediSecure API",
+    "version": "1.0.0",
+    "description": "API de la plateforme MediSecure (patients, rendez-vous, authentification)."
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Authentifier un utilisateur",
+        "responses": {
+          "200": { "description": "Authentification réussie, JWT retourné." },
+          "401": { "description": "Identifiants invalides." }
+        }
+      }
+    },
+    "/patients": {
+      "get": {
+        "summary": "Lister les patients",
+        "responses": {
+          "200": { "description": "Liste des patients." }
+        }
+      },
+      "post": {
+        "summary": "Créer un patient",
+        "responses": {
+          "201": { "description": "Patient créé." }
+        }
+      }
+    }
+  }
+}

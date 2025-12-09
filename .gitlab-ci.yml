@@ -1,0 +1,51 @@
+stages:
+  - build
+  - test
+  - docker
+  - deploy
+
+variables:
+  PYTHON_VERSION: "3.11"
+  DOCKER_TLS_CERTDIR: ""
+
+build_backend:
+  stage: build
+  image: python:${PYTHON_VERSION}
+  script:
+    - cd medisecure-backend
+    - pip install -r requirements.txt
+  artifacts:
+    paths:
+      - medisecure-backend/
+
+test_backend:
+  stage: test
+  image: python:${PYTHON_VERSION}
+  script:
+    - cd medisecure-backend
+    - pip install -r requirements.txt
+    - pytest --junitxml=tests/reports/junit.xml --cov=. --cov-report=xml:tests/reports/coverage.xml
+  artifacts:
+    when: always
+    paths:
+      - medisecure-backend/tests/reports/
+
+docker_build:
+  stage: docker
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - docker build -t registry.local/medisecure/backend:latest medisecure-backend
+    - docker build -t registry.local/medisecure/frontend:latest medisecure-frontend
+    - docker push registry.local/medisecure/backend:latest
+    - docker push registry.local/medisecure/frontend:latest
+
+deploy:
+  stage: deploy
+  image: alpine:3.19
+  before_script:
+    - apk add --no-cache ansible openssh-client
+  script:
+    - ansible-playbook ansible/playbooks/deploy.yml -i ansible/inventories/prod/hosts.ini
+  when: manual

@@ -1,0 +1,11 @@
+{
+  "title": "MediSecure - Appointments KPIs",
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 1,
+  "panels": [],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  }
+}
