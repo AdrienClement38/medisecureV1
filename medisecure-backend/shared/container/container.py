@@ -1,5 +1,6 @@
 # medisecure-backend/shared/container/container.py
 from dependency_injector import containers, providers
+from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 from contextlib import asynccontextmanager
@@ -59,7 +60,8 @@ class Container(containers.DeclarativeContainer):
     engine = providers.Singleton(
         create_async_engine,
         database_url,
-        echo=True
+        echo=True,
+        poolclass=NullPool
     )
     
     # Création de la factory de session

@@ -20,8 +20,10 @@ if "postgresql://" in DATABASE_URL and "asyncpg" not in DATABASE_URL:
 
 logger.info(f"Utilisation de l'URL de base de données: {DATABASE_URL.split('@')[0].split(':')[0]}:***@{DATABASE_URL.split('@')[1]}")
 
+from sqlalchemy.pool import NullPool
+
 # Créer le moteur de base de données asynchrone
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=True, poolclass=NullPool)
 
 # Création de la session asynchrone
 SessionLocal = sessionmaker(
