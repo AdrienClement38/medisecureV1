@@ -17,9 +17,10 @@ from patient_management.infrastructure.adapters.secondary.postgres_patient_repos
 from patient_management.infrastructure.adapters.secondary.in_memory_patient_repository import InMemoryPatientRepository
 from patient_management.domain.services.patient_service import PatientService
 
-from appointment_management.infrastructure.adapters.secondary.postgres_appointment_repository import PostgresAppointmentRepository
+from appointment_management.infrastructure.adapters.secondary.postgres_appointment_repository import PostgreSQLAppointmentRepository
 from appointment_management.infrastructure.adapters.secondary.in_memory_appointment_repository import InMemoryAppointmentRepository
 from appointment_management.domain.services.appointment_service import AppointmentService
+from appointment_management.infrastructure.adapters.secondary.smtp_notification_adapter import SmtpNotificationAdapter
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -112,7 +113,7 @@ class Container(containers.DeclarativeContainer):
     )
 
     appointment_repository = providers.Factory(
-        PostgresAppointmentRepository,
+        PostgreSQLAppointmentRepository,
         session_factory=async_session_factory
     )
     
@@ -123,6 +124,13 @@ class Container(containers.DeclarativeContainer):
     
     # Services d'infrastructure
     mailer = providers.Factory(SmtpMailer)
+
+    notification_service = providers.Factory(
+        SmtpNotificationAdapter,
+        mailer=mailer,
+        patient_repository=patient_repository,
+        user_repository=user_repository
+    )
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
