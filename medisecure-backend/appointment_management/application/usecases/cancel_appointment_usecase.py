@@ -13,13 +13,13 @@ class CancelAppointmentUseCase:
         self.appointment_repository = appointment_repository
         self.notification_port = notification_port
 
-    def execute(self, appointment_id: UUID, cancel_reason: str = "Motif non spécifié") -> None:
-        appointment = self.appointment_repository.find_by_id(appointment_id)
+    async def execute(self, appointment_id: UUID, cancel_reason: str = "Motif non spécifié") -> None:
+        appointment = await self.appointment_repository.find_by_id(appointment_id)
         if not appointment:
             raise ValueError("Appointment not found")
         
         appointment.cancel()
-        self.appointment_repository.save(appointment)
+        await self.appointment_repository.save(appointment)
 
         # Envoyer la notification
         self.notification_port.send_appointment_cancelled(

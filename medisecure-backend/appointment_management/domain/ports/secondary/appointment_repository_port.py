@@ -42,3 +42,14 @@ class AppointmentRepositoryPort(ABC):
         sur une plage horaire donnée
         """
         pass
+
+    @abstractmethod
+    def find_all(
+        self,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None
+    ) -> List[Appointment]:
+        """
+        Trouve tous les rendez-vous, avec filtrage optionnel par date
+        """
+        pass

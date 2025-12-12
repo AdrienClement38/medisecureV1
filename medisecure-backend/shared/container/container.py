@@ -1,6 +1,6 @@
 # medisecure-backend/shared/container/container.py
 from dependency_injector import containers, providers
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 from contextlib import asynccontextmanager
 import os
@@ -59,11 +59,7 @@ class Container(containers.DeclarativeContainer):
     engine = providers.Singleton(
         create_async_engine,
         database_url,
-        echo=True if environment == "development" else False,
-        pool_size=10,
-        max_overflow=20,
-        pool_pre_ping=True,  # Vérifier la connexion avant de l'utiliser
-        pool_recycle=3600,   # Recycler les connexions toutes les heures
+        echo=True
     )
     
     # Création de la factory de session
@@ -144,12 +140,18 @@ container_instance = None
 def get_container():
     """
     Retourne l'instance globale du container.
-    Crée une nouvelle instance si elle n'existe pas.
+    Crée une nouvelle instance si elle n'existe pas (fallback).
     """
     global container_instance
     if container_instance is None:
+        # Fallback pour les tests ou usage hors contexte app
         container_instance = Container()
     return container_instance
+
+def set_container_instance(container: Container):
+    """Définit l'instance globale du container."""
+    global container_instance
+    container_instance = container
 
 # Pour les tests
 def reset_container():

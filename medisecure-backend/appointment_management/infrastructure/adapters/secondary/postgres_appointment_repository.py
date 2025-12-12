@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from sqlalchemy.orm import Session
+from sqlalchemy.future import select
 from sqlalchemy import and_, or_
 from appointment_management.domain.entities.appointment import Appointment
 from appointment_management.domain.ports.secondary.appointment_repository_port import AppointmentRepositoryPort
@@ -10,65 +10,72 @@ from appointment_management.infrastructure.models.appointment_model import Appoi
 class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
     """
     Adaptateur de repository pour persister les rendez-vous dans PostgreSQL
+    Implémentation asynchrone utilisant session_factory.
     """
-    def __init__(self, session: Session):
-        self.session = session
+    def __init__(self, session_factory):
+        self.session_factory = session_factory
 
-    def save(self, appointment: Appointment) -> None:
+    async def save(self, appointment: Appointment) -> None:
         """Sauvegarde un rendez-vous dans PostgreSQL"""
-        # Vérifier si le rendez-vous existe déjà
-        existing = self.session.query(AppointmentModel).filter(
-            AppointmentModel.id == str(appointment.id)
-        ).first()
+        async with self.session_factory() as session:
+            # Vérifier si le rendez-vous existe déjà
+            query = select(AppointmentModel).where(AppointmentModel.id == str(appointment.id))
+            result = await session.execute(query)
+            existing = result.scalar_one_or_none()
 
-        if existing:
-            # Mise à jour
-            existing.patient_id = str(appointment.patient_id)
-            existing.doctor_id = str(appointment.doctor_id)
-            existing.start_time = appointment.start_time
-            existing.end_time = appointment.end_time
-            existing.status = appointment.status
-            existing.notes = appointment.notes
-        else:
-            # Création
-            model = AppointmentModel(
-                id=str(appointment.id),
-                patient_id=str(appointment.patient_id),
-                doctor_id=str(appointment.doctor_id),
-                start_time=appointment.start_time,
-                end_time=appointment.end_time,
-                status=appointment.status,
-                notes=appointment.notes,
-                created_at=appointment.created_at
-            )
-            self.session.add(model)
-        
-        self.session.commit()
+            if existing:
+                # Mise à jour
+                existing.patient_id = str(appointment.patient_id)
+                existing.doctor_id = str(appointment.doctor_id)
+                existing.start_time = appointment.start_time
+                existing.end_time = appointment.end_time
+                existing.status = appointment.status
+                existing.notes = appointment.notes
+                # Pas besoin de session.add() pour une mise à jour d'un objet attaché
+            else:
+                # Création
+                model = AppointmentModel(
+                    id=str(appointment.id),
+                    patient_id=str(appointment.patient_id),
+                    doctor_id=str(appointment.doctor_id),
+                    start_time=appointment.start_time,
+                    end_time=appointment.end_time,
+                    status=appointment.status,
+                    notes=appointment.notes,
+                    created_at=appointment.created_at
+                )
+                session.add(model)
+            
+            await session.commit()
 
-    def find_by_id(self, appointment_id: UUID) -> Optional[Appointment]:
+    async def find_by_id(self, appointment_id: UUID) -> Optional[Appointment]:
         """Trouve un rendez-vous par son ID"""
-        model = self.session.query(AppointmentModel).filter(
-            AppointmentModel.id == str(appointment_id)
-        ).first()
-        if not model:
-            return None
-        return self._model_to_entity(model)
+        async with self.session_factory() as session:
+            query = select(AppointmentModel).where(AppointmentModel.id == str(appointment_id))
+            result = await session.execute(query)
+            model = result.scalar_one_or_none()
+            
+            if not model:
+                return None
+            return self._model_to_entity(model)
 
-    def find_all_by_patient_id(self, patient_id: UUID) -> List[Appointment]:
+    async def find_all_by_patient_id(self, patient_id: UUID) -> List[Appointment]:
         """Trouve tous les rendez-vous d'un patient"""
-        models = self.session.query(AppointmentModel).filter(
-            AppointmentModel.patient_id == str(patient_id)
-        ).all()
-        return [self._model_to_entity(model) for model in models]
+        async with self.session_factory() as session:
+            query = select(AppointmentModel).where(AppointmentModel.patient_id == str(patient_id))
+            result = await session.execute(query)
+            models = result.scalars().all()
+            return [self._model_to_entity(model) for model in models]
 
-    def find_all_by_doctor_id(self, doctor_id: UUID) -> List[Appointment]:
+    async def find_all_by_doctor_id(self, doctor_id: UUID) -> List[Appointment]:
         """Trouve tous les rendez-vous d'un médecin"""
-        models = self.session.query(AppointmentModel).filter(
-            AppointmentModel.doctor_id == str(doctor_id)
-        ).all()
-        return [self._model_to_entity(model) for model in models]
+        async with self.session_factory() as session:
+            query = select(AppointmentModel).where(AppointmentModel.doctor_id == str(doctor_id))
+            result = await session.execute(query)
+            models = result.scalars().all()
+            return [self._model_to_entity(model) for model in models]
 
-    def find_conflicts(
+    async def find_conflicts(
         self, 
         doctor_id: UUID, 
         start_time: datetime, 
@@ -76,33 +83,57 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
         exclude_appointment_id: Optional[UUID] = None
     ) -> List[Appointment]:
         """Trouve les rendez-vous en conflit pour un médecin"""
-        query = self.session.query(AppointmentModel).filter(
-            AppointmentModel.doctor_id == str(doctor_id),
-            AppointmentModel.status.in_(["scheduled", "confirmed"]),
-            or_(
-                # Commence pendant un autre rendez-vous
-                and_(
-                    AppointmentModel.start_time <= start_time,
-                    AppointmentModel.end_time > start_time
-                ),
-                # Termine pendant un autre rendez-vous
-                and_(
-                    AppointmentModel.start_time < end_time,
-                    AppointmentModel.end_time >= end_time
-                ),
-                # Englobe complètement un autre rendez-vous
-                and_(
-                    AppointmentModel.start_time >= start_time,
-                    AppointmentModel.end_time <= end_time
+        async with self.session_factory() as session:
+            query = select(AppointmentModel).where(
+                AppointmentModel.doctor_id == str(doctor_id),
+                AppointmentModel.status.in_(["scheduled", "confirmed"]),
+                or_(
+                    # Commence pendant un autre rendez-vous
+                    and_(
+                        AppointmentModel.start_time <= start_time,
+                        AppointmentModel.end_time > start_time
+                    ),
+                    # Termine pendant un autre rendez-vous
+                    and_(
+                        AppointmentModel.start_time < end_time,
+                        AppointmentModel.end_time >= end_time
+                    ),
+                    # Englobe complètement un autre rendez-vous
+                    and_(
+                        AppointmentModel.start_time >= start_time,
+                        AppointmentModel.end_time <= end_time
+                    )
                 )
             )
-        )
-        
-        if exclude_appointment_id:
-            query = query.filter(AppointmentModel.id != str(exclude_appointment_id))
             
-        models = query.all()
-        return [self._model_to_entity(model) for model in models]
+            if exclude_appointment_id:
+                query = query.where(AppointmentModel.id != str(exclude_appointment_id))
+                
+            result = await session.execute(query)
+            models = result.scalars().all()
+            return [self._model_to_entity(model) for model in models]
+
+    async def find_all(
+        self,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None
+    ) -> List[Appointment]:
+        """Trouve tous les rendez-vous, avec filtrage optionnel par date"""
+        async with self.session_factory() as session:
+            query = select(AppointmentModel)
+            
+            conditions = []
+            if start_time:
+                conditions.append(AppointmentModel.start_time >= start_time)
+            if end_time:
+                conditions.append(AppointmentModel.end_time <= end_time)
+                
+            if conditions:
+                query = query.where(and_(*conditions))
+                
+            result = await session.execute(query)
+            models = result.scalars().all()
+            return [self._model_to_entity(model) for model in models]
 
     def _model_to_entity(self, model: AppointmentModel) -> Appointment:
         """Convertit un modèle SQLAlchemy en entité du domaine"""

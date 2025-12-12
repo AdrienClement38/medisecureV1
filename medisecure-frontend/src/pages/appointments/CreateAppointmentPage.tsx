@@ -165,13 +165,20 @@ const CreateAppointmentPage: React.FC = () => {
       } else {
         throw new Error("Échec de la création du rendez-vous");
       }
-    } catch (error) {
       console.error("Error creating appointment:", error);
-      setError(
-        `Une erreur est survenue lors de la création du rendez-vous: ${
-          error instanceof Error ? error.message : "Erreur inconnue"
-        }`
-      );
+      let errorMessage = "Une erreur est survenue lors de la création du rendez-vous";
+
+      if (error && typeof error === 'object' && 'response' in error) {
+        // @ts-ignore
+        const detail = error.response?.data?.detail;
+        if (detail) {
+          errorMessage = detail;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

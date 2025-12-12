@@ -7,14 +7,10 @@ from appointment_management.application.dtos.appointment_dto import AppointmentR
 from appointment_management.application.usecases.create_appointment_usecase import CreateAppointmentUseCase
 from appointment_management.application.usecases.cancel_appointment_usecase import CancelAppointmentUseCase
 from appointment_management.application.usecases.get_appointments_usecase import GetAppointmentsUseCase
-from shared.container.container import Container
+from shared.container.container import get_container, Container
 from shared.services.authenticator.extract_token import extract_token_payload
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
-
-def get_container():
-    """Fournit le container d'injection de dépendances."""
-    return Container()
 
 @router.post("/", response_model=AppointmentResponseDTO, status_code=status.HTTP_201_CREATED)
 async def create_appointment(
@@ -29,7 +25,7 @@ async def create_appointment(
             appointment_repository=container.appointment_repository(),
             notification_service=container.notification_service()
         )
-        result = use_case.execute(data)
+        result = await use_case.execute(data)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -49,7 +45,7 @@ async def cancel_appointment(
             appointment_repository=container.appointment_repository(),
             notification_port=container.notification_service()
         )
-        use_case.execute(appointment_id, cancel_reason=cancel_reason)
+        await use_case.execute(appointment_id, cancel_reason=cancel_reason)
         return None
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -70,7 +66,7 @@ async def get_appointments(
         use_case = GetAppointmentsUseCase(
             appointment_repository=container.appointment_repository()
         )
-        result = use_case.execute(
+        result = await use_case.execute(
             patient_id=patient_id,
             doctor_id=doctor_id,
             start_date=start_date,

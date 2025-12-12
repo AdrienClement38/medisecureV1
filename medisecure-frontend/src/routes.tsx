@@ -14,6 +14,9 @@ const SettingsPage = lazy(() => import("./pages/settings/SettingsPage"));
 const MedicalRecordsPage = lazy(
   () => import("./pages/medical-records/MedicalRecordsPage")
 );
+const EditMedicalRecordPage = lazy(
+  () => import("./pages/medical-records/EditMedicalRecordPage")
+);
 const UploadDocumentPage = lazy(
   () => import("./pages/medical-records/UploadDocumentPage")
 );
@@ -43,6 +46,8 @@ const AppointmentDetailsPage = lazy(
 const CreateAppointmentPage = lazy(
   () => import("./pages/appointments/CreateAppointmentPage")
 );
+
+const ProfilePage = lazy(() => import("./pages/profile/ProfilePage"));
 
 // Settings & Others
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
@@ -190,6 +195,14 @@ const AppRoutes = () => {
           ),
         },
         {
+          path: "profile",
+          element: (
+            <RouteProgress>
+              <ProfilePage />
+            </RouteProgress>
+          ),
+        },
+        {
           path: "medical-records",
           element: (
             <RouteProgress>
@@ -202,6 +215,14 @@ const AppRoutes = () => {
           element: (
             <RouteProgress>
               <MedicalRecordsPage />
+            </RouteProgress>
+          ),
+        },
+        {
+          path: "medical-records/:recordId/edit",
+          element: (
+            <RouteProgress>
+              <EditMedicalRecordPage />
             </RouteProgress>
           ),
         },

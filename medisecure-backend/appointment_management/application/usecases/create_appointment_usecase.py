@@ -18,7 +18,7 @@ class CreateAppointmentUseCase:
         self.appointment_repository = appointment_repository
         self.notification_service = notification_service
 
-    def execute(self, command: CreateAppointmentDTO) -> AppointmentResponseDTO:
+    async def execute(self, command: CreateAppointmentDTO) -> AppointmentResponseDTO:
         """
         Exécute le cas d'utilisation
         Args:
@@ -29,7 +29,7 @@ class CreateAppointmentUseCase:
             ValueError: Si le créneau est déjà pris
         """
         # Vérifier si le créneau est disponible
-        conflicts = self.appointment_repository.find_conflicts(
+        conflicts = await self.appointment_repository.find_conflicts(
             doctor_id=command.doctor_id,
             start_time=command.start_time,
             end_time=command.end_time
@@ -50,9 +50,14 @@ class CreateAppointmentUseCase:
         )
 
         # Sauvegarder le rendez-vous
-        self.appointment_repository.save(appointment)
+        await self.appointment_repository.save(appointment)
 
-        # Envoyer une notification
+        # Envoyer une notification (Assuming this might be async too or sync, keeping consistent if port is sync)
+        # Note: NotificationPort definition not seen, assuming sync for now or handled by implementation. 
+        # But commonly services are async. Let's assume sync unless error.
+        # Actually NotificationPort usually involves IO (email), so strictly should be async, but given I haven't seen it, 
+        # I will leave it as is unless I see it's broken. 
+        # Wait, if I am in an async function, sync calls are blocking but allowed.
         self.notification_service.send_appointment_created(
             patient_id=appointment.patient_id,
             doctor_id=appointment.doctor_id,

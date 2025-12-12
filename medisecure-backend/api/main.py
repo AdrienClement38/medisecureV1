@@ -16,6 +16,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from shared.container.container import Container, set_container_instance
+
+@app.on_event("startup")
+async def startup_event():
+    container = Container()
+    # Initialize connection pool in the event loop
+    container.init_resources()
+    set_container_instance(container)
+    print("Container initialized in startup loop")
+
 # Include routers
 app.include_router(auth_router, prefix="/api")
 app.include_router(patient_router, prefix="/api")  # Adding /api prefix for consistency if desired, or root

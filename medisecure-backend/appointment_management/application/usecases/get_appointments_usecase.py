@@ -10,7 +10,7 @@ class GetAppointmentsUseCase:
     def __init__(self, appointment_repository: AppointmentRepositoryPort):
         self.appointment_repository = appointment_repository
 
-    def execute(
+    async def execute(
         self, 
         patient_id: Optional[UUID] = None, 
         doctor_id: Optional[UUID] = None,
@@ -25,19 +25,19 @@ class GetAppointmentsUseCase:
         
         appointments = []
         if patient_id:
-            appointments = self.appointment_repository.find_all_by_patient_id(patient_id)
+            appointments = await self.appointment_repository.find_all_by_patient_id(patient_id)
         elif doctor_id:
-            appointments = self.appointment_repository.find_all_by_doctor_id(doctor_id)
+            appointments = await self.appointment_repository.find_all_by_doctor_id(doctor_id)
         else:
-            # If no ID filter, we might return empty or need a 'find_all'
-            # For safety/performance, preventing full dump without filter
-            return []
+            # New behavior: allow date filtering without ID
+            appointments = await self.appointment_repository.find_all(start_time=start_date, end_time=end_date)
             
-        # In-memory filtering for date range if repository doesn't support it directly in the interface I defined
-        if start_date:
-            appointments = [a for a in appointments if a.start_time >= start_date]
-        if end_date:
-            appointments = [a for a in appointments if a.end_time <= end_date]
+        # In-memory filtering for date range (redundant if find_all handles it, but keeps safety for other methods)
+        if patient_id or doctor_id:
+            if start_date:
+                appointments = [a for a in appointments if a.start_time >= start_date]
+            if end_date:
+                appointments = [a for a in appointments if a.end_time <= end_date]
             
         return [
             AppointmentResponseDTO(

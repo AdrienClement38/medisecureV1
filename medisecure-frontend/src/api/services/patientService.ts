@@ -96,7 +96,8 @@ const patientService = {
 
   getPatientById: async (id: string): Promise<Patient> => {
     try {
-      const response = await apiClient.get<any>(ENDPOINTS.PATIENTS.DETAIL(id));
+      const cleanId = id.replace(/\s+/g, "-");
+      const response = await apiClient.get<any>(ENDPOINTS.PATIENTS.DETAIL(cleanId));
       return adaptPatientFromApi(response);
     } catch (error) {
       console.error(`Erreur lors de la récupération du patient ${id}:`, error);

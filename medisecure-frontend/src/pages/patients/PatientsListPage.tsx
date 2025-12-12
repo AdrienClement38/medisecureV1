@@ -239,13 +239,13 @@ const PatientsListPage: React.FC = () => {
                     </td>
                     <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
-                        to={`/patients/${patient.id}`}
+                        to={`/patients/${patient.id.replace(/\s+/g, "-")}`}
                         className="text-primary-600 hover:text-primary-900 mr-3"
                       >
                         Détails
                       </Link>
                       <Link
-                        to={`/patients/${patient.id}/edit`}
+                        to={`/patients/${patient.id.replace(/\s+/g, "-")}/edit`}
                         className="text-secondary-600 hover:text-secondary-900 mr-3"
                       >
                         Modifier
