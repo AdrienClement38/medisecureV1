@@ -56,6 +56,5 @@ deploy:
   before_script:
     - apk add --no-cache ansible openssh-client
   script:
-    - echo "Deploying to production..."
-    # - ansible-playbook ansible/playbooks/deploy.yml -i ansible/inventories/prod/hosts.ini
+    - ansible-playbook ansible/playbooks/deploy.yml -i ansible/inventories/prod/hosts.ini --extra-vars "backend_image=$CI_REGISTRY_IMAGE/backend:latest"
   when: manual

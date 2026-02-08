@@ -3,7 +3,7 @@
   tasks:
     - name: Pull backend image
       community.docker.docker_image:
-        name: "registry.local/medisecure/backend:latest"
+        name: "{{ backend_image | default('registry.local/medisecure/backend:latest') }}"
         source: pull
 
     - name: Apply database migrations

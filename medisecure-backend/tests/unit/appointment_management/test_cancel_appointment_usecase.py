@@ -8,21 +8,22 @@ from appointment_management.domain.entities.appointment import Appointment
 from appointment_management.domain.ports.secondary.appointment_repository_port import AppointmentRepositoryPort
 from appointment_management.domain.ports.secondary.notification_port import NotificationPort
 
+@pytest.mark.asyncio
 class TestCancelAppointmentUseCase:
     
     @pytest.fixture
     def appointment_repository(self):
-        return Mock(spec=AppointmentRepositoryPort)
+        return AsyncMock(spec=AppointmentRepositoryPort)
 
     @pytest.fixture
     def notification_port(self):
-        return Mock(spec=NotificationPort)
+        return AsyncMock(spec=NotificationPort)
 
     @pytest.fixture
     def use_case(self, appointment_repository, notification_port):
         return CancelAppointmentUseCase(appointment_repository, notification_port)
 
-    def test_cancel_appointment_success(self, use_case, appointment_repository, notification_port):
+    async def test_cancel_appointment_success(self, use_case, appointment_repository, notification_port):
         # Arrange
         appointment_id = uuid4()
         patient_id = uuid4()
@@ -40,7 +41,7 @@ class TestCancelAppointmentUseCase:
         appointment_repository.find_by_id.return_value = appointment
         
         # Act
-        use_case.execute(appointment_id, cancel_reason="Imprévu")
+        await use_case.execute(appointment_id, cancel_reason="Imprévu")
         
         # Assert
         assert appointment.status == "cancelled"
@@ -52,11 +53,11 @@ class TestCancelAppointmentUseCase:
             cancel_reason="Imprévu"
         )
 
-    def test_cancel_appointment_not_found(self, use_case, appointment_repository):
+    async def test_cancel_appointment_not_found(self, use_case, appointment_repository):
         # Arrange
         appointment_id = uuid4()
         appointment_repository.find_by_id.return_value = None
         
         # Act & Assert
         with pytest.raises(ValueError, match="Appointment not found"):
-            use_case.execute(appointment_id)
+            await use_case.execute(appointment_id)

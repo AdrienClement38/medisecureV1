@@ -21,6 +21,7 @@ class Appointment:
         end_time: datetime,
         status: str = "scheduled",
         notes: Optional[str] = None,
+        cancel_reason: Optional[str] = None,
         created_at: Optional[datetime] = None
     ):
         self.id = id
@@ -47,13 +48,14 @@ class Appointment:
         if self.status not in valid_statuses:
             raise ValueError(f"Statut invalide. Valeurs autorisées: {valid_statuses}")
 
-    def cancel(self) -> None:
+    def cancel(self, reason: Optional[str] = None) -> None:
         """Annuler un rendez-vous"""
         if self.status == "cancelled":
             raise ValueError("Le rendez-vous est déjà annulé")
         if self.status == "completed":
             raise ValueError("Impossible d'annuler un rendez-vous terminé")
         self.status = "cancelled"
+        self.cancel_reason = reason
         
     def reschedule(self, new_start_time: datetime, new_end_time: datetime) -> None:
         """Reprogrammer un rendez-vous"""
