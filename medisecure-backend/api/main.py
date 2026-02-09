@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # Import controllers
 from appointment_management.infrastructure.adapters.primary.controllers.appointment_controller import router as appointment_router
@@ -25,6 +26,9 @@ async def startup_event():
     container.init_resources()
     set_container_instance(container)
     print("Container initialized in startup loop")
+
+# Expose Prometheus metrics
+Instrumentator().instrument(app).expose(app)
 
 # Include routers
 app.include_router(auth_router, prefix="/api")

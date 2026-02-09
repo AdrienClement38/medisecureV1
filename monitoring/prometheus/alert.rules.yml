@@ -1,18 +1,20 @@
 groups:
-  - name: backend_alerts
+  - name: medisecure_alerts
     rules:
-      - alert: HighRequestLatency
-        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le)) > 0.5
-        for: 2m
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 0.3
+        for: 1m
         labels:
           severity: warning
         annotations:
-          description: "Latency above 500ms for HTTP requests."
+          summary: "High P95 latency on backend"
+          description: "P95 latency is > 300ms (current value: {{ $value }}s)"
 
-      - alert: BackendDown
-        expr: up{job="backend"} == 0
-        for: 30s
+      - alert: HighErrorRate
+        expr: sum(rate(http_request_duration_seconds_count{status="500"}[1m])) > 0
+        for: 1m
         labels:
           severity: critical
         annotations:
-          description: "Backend API is not responding."
+          summary: "High HTTP 500 Error Rate"
+          description: "Backend is returning 500 errors"
