@@ -18,6 +18,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - medisecure-network
 
   # API FastAPI
   medisecure-api:
@@ -45,6 +47,8 @@ services:
     volumes:
       - ./medisecure-backend:/app
     command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - medisecure-network
 
   # Frontend React
   medisecure-frontend:
@@ -60,6 +64,8 @@ services:
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8000/api
+    networks:
+      - medisecure-network
 
   # PgAdmin (optionnel, pour la gestion de la base de données)
   medisecure-pgadmin:
@@ -75,7 +81,28 @@ services:
       - medisecure-db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - medisecure-network
+
+  # Locust for Load Testing
+  locust:
+    image: locustio/locust
+    container_name: medisecure-locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locustfile.py:/mnt/locust/locustfile.py
+    environment:
+      - LOCUST_HOST=http://medisecure-api:8000
+    command: -f /mnt/locust/locustfile.py
+    networks:
+      - medisecure-network
 
 volumes:
   postgres_data:
   pgadmin_data:
+
+
+networks:
+  medisecure-network:
+    driver: bridge

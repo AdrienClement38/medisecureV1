@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Text, Index, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -11,27 +12,28 @@ from sqlalchemy.ext.declarative import declarative_base
 # unless I find a better place. Ideally it should share the same metadata.
 # I will check `shared` later, but for now I follow the prompt snippet exactly.
 
-from sqlalchemy.orm import declarative_base # Updated import for recent SA
-Base = declarative_base()
+from sqlalchemy import Column, String, DateTime, Text, Index, ForeignKey, Enum
+from sqlalchemy.orm import relationship
+from shared.infrastructure.database.connection import Base
+
+from sqlalchemy.dialects.postgresql import UUID
+from appointment_management.domain.entities.appointment import AppointmentStatus
+
+# ... existing imports ...
 
 class AppointmentModel(Base):
     """Modèle SQLAlchemy pour les rendez-vous"""
     __tablename__ = "appointments"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    patient_id = Column(String(36), nullable=False, index=True) # Removed ForeignKey strict constraint to avoid import optimization issues for now, or assume strings. 
-    # The prompt code had ForeignKey("patients.id"). I'll keep it but I might need to ensure `patients` table exists.
-    # I will stick to the prompt code exactly as requested.
-    
-    # Redefining columns to match prompt exactly
-    patient_id = Column(String(36), ForeignKey("patients.id"), nullable=False, index=True)
-    doctor_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True) # Assumming doctors are users? Prompt said "doctors.id", but structure suggests `users`. I'll stick to prompt "doctors.id" but it might be wrong if doctors are in users table.
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    patient_id = Column(UUID(as_uuid=True), ForeignKey("patients.id"), nullable=False, index=True)
+    doctor_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     
     # Wait, the prompt says `ForeignKey("doctors.id")`. I should verify if `doctors` table exists later.
     
     start_time = Column(DateTime, nullable=False, index=True)
     end_time = Column(DateTime, nullable=False, index=True)
-    status = Column(String(20), nullable=False, default="scheduled")
+    status = Column(Enum("scheduled", "confirmed", "cancelled", "completed", "missed", name="appointmentstatus"), nullable=False, default="scheduled")
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.now)
 
@@ -42,3 +44,8 @@ class AppointmentModel(Base):
         # Index pour la recherche de rendez-vous par statut
         Index("idx_appointment_status", status),
     )
+
+    # Relations
+    # Utiliser des chaînes pour éviter les imports circulaires, mais s'assurer que les modèles sont chargés quelque part
+    patient = relationship("PatientModel", back_populates="appointments")
+    doctor = relationship("UserModel", foreign_keys=[doctor_id])

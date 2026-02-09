@@ -1,0 +1,10 @@
+﻿
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/conta/.gemini/antigravity/scratch/medisecureV1/medisecure-frontend[39m
+
+ [31mÔØ»[39m src/components/common/Button/Button.test.tsx [2m([22m[2m0 test[22m[2m)[22m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 20:42:43
+[2m   Duration [22m 1.80s[2m (transform 44ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 1.23s)[22m
+

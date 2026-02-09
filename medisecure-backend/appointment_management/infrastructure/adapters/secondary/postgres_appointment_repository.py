@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 from sqlalchemy.future import select
 from sqlalchemy import and_, or_
-from appointment_management.domain.entities.appointment import Appointment
+from appointment_management.domain.entities.appointment import Appointment, AppointmentStatus
 from appointment_management.domain.ports.secondary.appointment_repository_port import AppointmentRepositoryPort
 from appointment_management.infrastructure.models.appointment_model import AppointmentModel
 
@@ -19,14 +19,14 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
         """Sauvegarde un rendez-vous dans PostgreSQL"""
         async with self.session_factory() as session:
             # Vérifier si le rendez-vous existe déjà
-            query = select(AppointmentModel).where(AppointmentModel.id == str(appointment.id))
+            query = select(AppointmentModel).where(AppointmentModel.id == appointment.id)
             result = await session.execute(query)
             existing = result.scalar_one_or_none()
 
             if existing:
                 # Mise à jour
-                existing.patient_id = str(appointment.patient_id)
-                existing.doctor_id = str(appointment.doctor_id)
+                existing.patient_id = appointment.patient_id
+                existing.doctor_id = appointment.doctor_id
                 existing.start_time = appointment.start_time
                 existing.end_time = appointment.end_time
                 existing.status = appointment.status
@@ -35,9 +35,9 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
             else:
                 # Création
                 model = AppointmentModel(
-                    id=str(appointment.id),
-                    patient_id=str(appointment.patient_id),
-                    doctor_id=str(appointment.doctor_id),
+                    id=appointment.id,
+                    patient_id=appointment.patient_id,
+                    doctor_id=appointment.doctor_id,
                     start_time=appointment.start_time,
                     end_time=appointment.end_time,
                     status=appointment.status,
@@ -51,7 +51,7 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
     async def find_by_id(self, appointment_id: UUID) -> Optional[Appointment]:
         """Trouve un rendez-vous par son ID"""
         async with self.session_factory() as session:
-            query = select(AppointmentModel).where(AppointmentModel.id == str(appointment_id))
+            query = select(AppointmentModel).where(AppointmentModel.id == appointment_id)
             result = await session.execute(query)
             model = result.scalar_one_or_none()
             
@@ -62,7 +62,7 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
     async def find_all_by_patient_id(self, patient_id: UUID) -> List[Appointment]:
         """Trouve tous les rendez-vous d'un patient"""
         async with self.session_factory() as session:
-            query = select(AppointmentModel).where(AppointmentModel.patient_id == str(patient_id))
+            query = select(AppointmentModel).where(AppointmentModel.patient_id == patient_id)
             result = await session.execute(query)
             models = result.scalars().all()
             return [self._model_to_entity(model) for model in models]
@@ -70,7 +70,7 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
     async def find_all_by_doctor_id(self, doctor_id: UUID) -> List[Appointment]:
         """Trouve tous les rendez-vous d'un médecin"""
         async with self.session_factory() as session:
-            query = select(AppointmentModel).where(AppointmentModel.doctor_id == str(doctor_id))
+            query = select(AppointmentModel).where(AppointmentModel.doctor_id == doctor_id)
             result = await session.execute(query)
             models = result.scalars().all()
             return [self._model_to_entity(model) for model in models]
@@ -85,8 +85,9 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
         """Trouve les rendez-vous en conflit pour un médecin"""
         async with self.session_factory() as session:
             query = select(AppointmentModel).where(
-                AppointmentModel.doctor_id == str(doctor_id),
-                AppointmentModel.status.in_(["scheduled", "confirmed"]),
+                AppointmentModel.doctor_id == doctor_id,
+                # Use .value to ensure we query with strings that match the Enum definition in the model
+                AppointmentModel.status.in_([s.value for s in [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED]]),
                 or_(
                     # Commence pendant un autre rendez-vous
                     and_(
@@ -107,7 +108,7 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
             )
             
             if exclude_appointment_id:
-                query = query.where(AppointmentModel.id != str(exclude_appointment_id))
+                query = query.where(AppointmentModel.id != exclude_appointment_id)
                 
             result = await session.execute(query)
             models = result.scalars().all()
@@ -138,9 +139,9 @@ class PostgreSQLAppointmentRepository(AppointmentRepositoryPort):
     def _model_to_entity(self, model: AppointmentModel) -> Appointment:
         """Convertit un modèle SQLAlchemy en entité du domaine"""
         return Appointment(
-            id=UUID(model.id),
-            patient_id=UUID(model.patient_id),
-            doctor_id=UUID(model.doctor_id),
+            id=model.id,
+            patient_id=model.patient_id,
+            doctor_id=model.doctor_id,
             start_time=model.start_time,
             end_time=model.end_time,
             status=model.status,

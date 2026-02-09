@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from shared.infrastructure.database.connection import Base
 from shared.infrastructure.database.models.user_model import UserModel
 from shared.infrastructure.database.models.patient_model import PatientModel
-from shared.infrastructure.database.models.appointment_model import AppointmentModel
+from appointment_management.infrastructure.models.appointment_model import AppointmentModel
 
 # Chargement des variables d'environnement
 load_dotenv()
