@@ -28,7 +28,10 @@ async def startup_event():
     print("Container initialized in startup loop")
 
 # Expose Prometheus metrics
-Instrumentator().instrument(app).expose(app)
+try:
+    Instrumentator().instrument(app).expose(app)
+except Exception as e:
+    print(f"Warning: Failed to initialize Prometheus instrumentation: {e}")
 
 # Include routers
 app.include_router(auth_router, prefix="/api")
