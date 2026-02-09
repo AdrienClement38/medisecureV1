@@ -21,6 +21,14 @@ build_backend:
 test_backend:
   stage: test
   image: python:3.9-slim
+  services:
+    - name: postgres:15-alpine
+      alias: db
+  variables:
+    POSTGRES_DB: medisecure_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DATABASE_TEST_URL: "postgresql+asyncpg://postgres:postgres@db:5432/medisecure_test"
   script:
     - cd medisecure-backend
     - pip install -r requirements.txt
